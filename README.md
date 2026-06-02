@@ -6,7 +6,7 @@ This packages contains an alternative computational method that lowers the asymp
 
 ## Gauss Circle Problem (GCP) Lattice Counting
 
-The classic $\textrm{GCP}(k, \, N)$ counts the number of integers in $\bold{\nu} \in \mathcal{Z}^N$ upper-bounded by the Euclidean norm $||\bold{\nu}||_2 \leq k$ for distance $k$. For efficient counting in $N$ dimensions, we can express the solution in terms of summations over solutions in $N-1$ dimensions given by  
+The classic $\textrm{GCP}(k, \, N)$ counts the number of integers in $\mathbf{\nu} \in \mathcal{Z}^N$ upper-bounded by the Euclidean norm $||\mathbf{\nu}||_2 \leq k$ for distance $k$. For efficient counting in $N$ dimensions, we can express the solution in terms of summations over solutions in $N-1$ dimensions given by  
 > $\textrm{GCP}(k, \, N) = \left \{ \begin{array}{cc}
 > 1 + 2 \lfloor k \rfloor, & N = 1\\
 > \sum_{m = -\lfloor k \rfloor}^{\lfloor k \rfloor } \textrm{GCP}(\sqrt{k^2 - m^2}, \, N-1), & N > 1\end{array}\right .$.
