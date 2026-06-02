@@ -2,14 +2,14 @@
 
 The image-source model (ISM) is a widely adopted method for efficiently simulating acoustic room impulse responses (RIRs) under specular reflection assumptions. Acoustic paths between source and receiver are traced to lattice points computed from successive reflections over bounding planes of the room. Rectangular rooms bound the total number of image-sources to be polynomial in the RIR's duration or distance $k$ equivalent, with degree equal the number of room dimensions $N$. Direct ISM simulations are therefore compute upper-bound by $O \left ( k^N \right )$, and consider only cases of $N \leq 3$ for tractability and real-world applications.
 
-This packages contains an alternative computational method that lowers the asymptotic compute bound to $O \left ( N \, k^2 \, \log k \right )$ for integer coordinates and room dimensions via reducing ISM lattice point counting to the classic Gauss circle problem (GCP). We extend the lattice counting model to frequency-dependent and reflection weighted image-sources in higher dimensions, relating solutions between successive dimensions via the convolution operator. Two constructions for realizing RIRs are presented, along with time-frequency controls, error and run-time analysis, and RIR statistics.
+This packages contains an alternative computational method that lowers the asymptotic compute bound to $O \left ( N k^2  \log k \right )$ for integer coordinates and room dimensions via reducing ISM lattice point counting to the classic Gauss circle problem (GCP). We extend the lattice counting model to frequency-dependent and reflection weighted image-sources in higher dimensions, relating solutions between successive dimensions via the convolution operator. Two constructions for realizing RIRs are presented, along with time-frequency controls, error and run-time analysis, and RIR statistics.
 
 ## Gauss Circle Problem (GCP) Lattice Counting
 
-The classic $\textrm{GCP}(k, \, N)$ counts the number of integers in $\mathbf{\nu} \in \mathcal{Z}^N$ upper-bounded by the Euclidean norm $||\mathbf{\nu}||_2 \leq k$ for distance $k$. For efficient counting in $N$ dimensions, we can express the solution in terms of summations over solutions in $N-1$ dimensions given by  
-> $\textrm{GCP}(k, \, N) = \left \{ \begin{array}{cc}
+The classic $\textrm{GCP}(k, N)$ counts the number of integers in $\mathbf{\nu} \in \mathcal{Z}^N$ upper-bounded by the Euclidean norm $||\mathbf{\nu}||_2 \leq k$ for distance $k$. For efficient counting in $N$ dimensions, we can express the solution in terms of summations over solutions in $N-1$ dimensions given by  
+> $\textrm{GCP}(k, N) = \left \{ \begin{array}{cc}
 > 1 + 2 \lfloor k \rfloor, & N = 1\\
-> \sum_{m = -\lfloor k \rfloor}^{\lfloor k \rfloor } \textrm{GCP}(\sqrt{k^2 - m^2}, \, N-1), & N > 1\end{array}\right .$.
+> \sum_{m = -\lfloor k \rfloor}^{\lfloor k \rfloor } \textrm{GCP}(\sqrt{k^2 - m^2}, N-1), & N > 1\end{array}\right .$.
 
 As a result, computing GCP in high-dimensions has an elegant recurrence relation, and can be memoized for integers $k^2 - m^2$ to yield a dynamic programming solution for $k \in \mathcal{Z}_{\geq 0}$. Furthermore, solutions for varying $k$ can be expressed via convolution operator between a sparse square-kernel and the preceding solutions in the lower dimensions. The following functions implement this formulation.
 
@@ -210,7 +210,7 @@ h_refl_neg_pos = RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims),
 h_refl_alt_flip = RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_full(ndims) .* (-1).^((ndims) + 0), gamma_neg_full(ndims) .* (-1).^((ndims) + 1), varargin{:});
 % exportgraphics(gcf, ['figs/GCP_ISM_N_', num2str(6), '_refl_alt_flip.png'])
 ```
-| $-\Gamma_{+n}$, $\,-\Gamma_{-n}$ | $-\Gamma_{+n}$, $\,\Gamma_{-n}$  | $(-1)^n  \, \Gamma_{+n}$, $ \, (-1)^{n+1} \, \Gamma_{-n}$ |
+| $-\Gamma_{+n}$, $-\Gamma_{-n}$ | $-\Gamma_{+n}$, $\Gamma_{-n}$  | $(-1)^n   \Gamma_{+n}$, $  (-1)^{n+1}  \Gamma_{-n}$ |
 | --- | --- | --- |
 |<img src="./source/figs/GCP_ISM_N_6_refl_neg_neg.png" alt="GCP-ISM N = 6, phase-flip +- walls" width="400"/>|<img src="./source/figs/GCP_ISM_N_6_refl_neg_pos.png" alt="GCP-ISM N = 6, phase-flip +walls" width="400"/>|<img src="./source/figs/GCP_ISM_N_6_refl_alt_flip.png" alt="GCP-ISM N = 6, alternate phase flip" width="400"/>|
 
