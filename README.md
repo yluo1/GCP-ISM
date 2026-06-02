@@ -216,7 +216,7 @@ h_refl_alt_flip = RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims)
 
 ### Frequency Dependent Wall Reflections
 
-GCP-ISM supports frequency-dependent wall reflection coefficients, which can be specified by the latter’s frequency response at uniform spaced frequency bins from DC to Nyquist. It’s useful to design a minimum filter interpolating some set of desired amplitude responses over frequency, and constrained to be below or at unity.
+GCP-ISM supports frequency-dependent wall reflection coefficients, which can be specified by the latter’s frequency response at uniform spaced frequency bins from DC to Nyquist. It’s useful to design a minimum phase filter interpolating some set of desired amplitude responses over frequency, and constrained to be below or at unity. For example, a 2-tap minimum phase filter with monotone magnitude response over frequency can be parameterized by the desired magnitude responses at DC and Nyquist. An 8-tap minimum phase filter with a non-monotonic amplitude response is also designed and its RIR shown. Note that higher-order filters require their frequency responses to be sampled over higher number of uniform spaced frequency points.
 
 ```
 ndims = 1:3;
@@ -226,18 +226,38 @@ P = 17;
 w = linspace(0, pi, P)';
 
 % Design two-tap minimum phase filter with target response at DC and Nyquist
-h_refl = filter_two_tap_FIR(0, -2.5, false);
-H_refl = freqz(h_refl, 1, [w; pi]); H_refl = H_refl(1:end-1);
+h_refl_2 = filter_two_tap_FIR(0, -2.5, true);
+H_refl_2 = freqz(h_refl_2, 1, [w; pi]); H_refl_2 = H_refl_2(1:end-1);
 
 % Specify frequency responses per wall
-gamma_pos_freq = H_refl * gamma_pos_full;
-gamma_neg_freq = H_refl * gamma_neg_full;
+gamma_pos_freq_2 = H_refl_2 * gamma_pos_full;
+gamma_neg_freq_2 = H_refl_2 * gamma_neg_full;
 
-h_GCP_ISM_cpx_refl = RIR_GCP_ISM_LUT_freq(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_freq(:, ndims), gamma_neg_freq(:, ndims), ...
+h_GCP_ISM_cpx_refl_2 = RIR_GCP_ISM_LUT_freq(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_freq_2(:, ndims), gamma_neg_freq_2(:, ndims), ...
     		'mode', 'ifft', 'lambda', lambda, 'enable_disp', true);
-% exportgraphics(gcf, ['figs/GCP_ISM_freq_N_', num2str(3), '.png'])
+% exportgraphics(gcf, ['figs/GCP_ISM_freq_2_N_', num2str(3), '.png'])
+
+
+% Increase number of frequency points between DC and Nyquist for 8-tap wall reflection FIR filter
+P = 129;
+w = linspace(0, pi, P)';
+
+% Design 8-tap minimum phase filter
+X_mag_oneside = db2mag([0, -3.5,  -2, -4]);
+h_refl_8 = filter_min_phase([X_mag_oneside, fliplr(X_mag_oneside)], 1, true);
+H_refl_8 = freqz(h_refl_8, 1, [w; pi]); H_refl_8 = H_refl_8(1:end-1);
+
+% Specify frequency responses per wall
+gamma_pos_freq_8 = H_refl_8 * gamma_pos_full;
+gamma_neg_freq_8 = H_refl_8 * gamma_neg_full;
+
+h_GCP_ISM_cpx_refl_8 = RIR_GCP_ISM_LUT_freq(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_freq_8(:, ndims), gamma_neg_freq_8(:, ndims), ...
+    		'mode', 'ifft', 'lambda', lambda, 'enable_disp', true);
+% exportgraphics(gcf, ['figs/GCP_ISM_freq_8_N_', num2str(3), '.png'])
 ```
-<img src="./source/figs/GCP_ISM_freq_N_3.png" alt="GCP-ISM N = 3, lambda = 4 with jitter" width="400"/>
+|GCP-ISM RIR with 2-tap Wall Reflection Filter |GCP-ISM RIR with 8-Tap Wall Reflection FIR |
+| --- | --- |
+|<img src="./source/figs/GCP_ISM_freq_2_N_3.png" alt="GCP-ISM N = 3 with 2-tap wall reflection filter" width="400"/>|<img src="./source/figs/GCP_ISM_freq_8_N_3.png" alt="GCP-ISM N = 3 with 8-tap wall reflection filter" width="400"/>|
 
 ### Adding Randomized Coordinate Jitter
 

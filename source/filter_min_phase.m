@@ -5,7 +5,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Input
-%X_mag:         [N x 1] DC to Fs bins
+%X_mag:         [N x 1] or [1 x N] DC to Fs bins
 %os:            Oversample factor
 %enable_disp:   Logical, if true display frequency response at 48 kHz
 
