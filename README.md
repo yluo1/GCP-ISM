@@ -107,7 +107,7 @@ We extend GCP for RIR generation by considering the classic ISM by
 
 The RIR under ISM is a summation of acoustic path contributions in directions of the a sound-source repeatedly reflected over orthogonal planes of a room. Imaged sound-sources have coordinates that can be expressed in terms of translations over scaled lattice coordinates. Acoustic attenuation from wall reflections can be expressed in terms of weighted summation. We can therefore weight GCP summations and modify its integration bounds to compute the total acoustic path contributions as a function of distance $k$. Differentiating the latter volume function yields the RIR.
 
-Please see the [publications]($Publications) section for further details.
+Please see the [publications](#Publications) section for further details.
 
 ### Functions
 
