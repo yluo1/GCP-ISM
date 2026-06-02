@@ -36,7 +36,7 @@ ylabel('Count', 'fontsize', 14);
 title(['Gauss Circle Problem N = ', num2str(N)], 'fontsize', 16);
 % exportgraphics(gcf, 'figs/GCP_small_k_small_N.png')
 ```
-<img src="./figs/GCP_small_k_small_N.png" alt="GCP small k, small N" width="400"/>
+<img src="./source/figs/GCP_small_k_small_N.png" alt="GCP small k, small N" width="400"/>
 
 Small distance ```k <= 12```, and large dimension ```N = 20```:
 
@@ -54,7 +54,7 @@ ylabel('Count', 'fontsize', 14);
 title(['Gauss Circle Problem N = ', num2str(N)], 'fontsize', 16);
 % exportgraphics(gcf, 'figs/GCP_small_k_large_N.png')
 ```
-<img src="./figs/GCP_small_k_large_N.png" alt="GCP small k, large N" width="400"/>
+<img src="./source/figs/GCP_small_k_large_N.png" alt="GCP small k, large N" width="400"/>
 
 Large distance ```k <= 500```, and small dimension ```N = 5```:
 
@@ -72,7 +72,7 @@ ylabel('Count', 'fontsize', 14);
 title(['Gauss Circle Problem N = ', num2str(N)], 'fontsize', 16);
 % exportgraphics(gcf, 'figs/GCP_large_k_small_N.png')
 ```
-<img src="./figs/GCP_large_k_small_N.png" alt="GCP large k, small N" width="400"/>
+<img src="./source/figs/GCP_large_k_small_N.png" alt="GCP large k, small N" width="400"/>
 
 Large distance ```k <= 500```, and large dimension ```N = 20```:
 
@@ -90,7 +90,7 @@ ylabel('Count', 'fontsize', 14);
 title(['Gauss Circle Problem N = ', num2str(N)], 'fontsize', 16);
 % exportgraphics(gcf, 'figs/GCP_large_k_large_N.png')
 ```
-<img src="./figs/GCP_large_k_large_N.png" alt="GCP large k, large N" width="400"/>
+<img src="./source/figs/GCP_large_k_large_N.png" alt="GCP large k, large N" width="400"/>
 
 ## Gauss Circle Problem Image-Source Model (GCP-ISM) for Room Impulse Response (RIR) Generation
 
@@ -155,11 +155,11 @@ end
 ```
 | N = 1 | N = 2 | N = 3 |
 | --- | --- | --- |
-|<img src="./figs/GCP_ISM_N_1.png" alt="GCP-ISM N = 1" width="400"/>|<img src="./figs/GCP_ISM_N_2.png" alt="GCP-ISM N = 2" width="400"/>|<img src="./figs/GCP_ISM_N_3.png" alt="GCP-ISM N = 3" width="400"/>|
+|<img src="./source/figs/GCP_ISM_N_1.png" alt="GCP-ISM N = 1" width="400"/>|<img src="./source/figs/GCP_ISM_N_2.png" alt="GCP-ISM N = 2" width="400"/>|<img src="./source/figs/GCP_ISM_N_3.png" alt="GCP-ISM N = 3" width="400"/>|
 
 | N = 4 | N = 5 | N = 6 |
 | --- | --- | --- |
-|<img src="./figs/GCP_ISM_N_4.png" alt="GCP-ISM N = 4" width="400"/>|<img src="./figs/GCP_ISM_N_5.png" alt="GCP-ISM N = 5" width="400"/>|<img src="./figs/GCP_ISM_N_6.png" alt="GCP-ISM N = 6" width="400"/>|
+|<img src="./source/figs/GCP_ISM_N_4.png" alt="GCP-ISM N = 4" width="400"/>|<img src="./source/figs/GCP_ISM_N_5.png" alt="GCP-ISM N = 5" width="400"/>|<img src="./source/figs/GCP_ISM_N_6.png" alt="GCP-ISM N = 6" width="400"/>|
 
 For correctness, we can show that GCP-ISM matches direct ISM (see paper for runtime comparisons):
 ```
@@ -168,7 +168,7 @@ ndims = 1:3;
 h_direct = RIR_ISM_direct(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_full(ndims), gamma_neg_full(ndims), 'enable_disp', true);
 % exportgraphics(gcf, ['figs/direct_ISM_N_', num2str(3), '.png'])
 ```
-<img src="./figs/direct_ISM_N_3.png" alt="direct-ISM N = 3" width="400"/>
+<img src="./source/figs/direct_ISM_N_3.png" alt="direct-ISM N = 3" width="400"/>
 
 GCP-ISM supports image-source coordinate jittering that is separable across dimensions. The regularity of image-source coordinates and induces sweeping echos and sweep streaks in the spectrogram. In the direct ISM method, adding a jitter to the image-source coordinates significantly reduces the sweep effects. For GCP-ISM, we can jitter the span of the signed distances between image-source to receiver when integrating over the lower dimensional slices. This also reduces the sweep effects, but to a lesser extent as the image-source coordinates' jitters are separable across dimension. Increasing the coordinate scaling factor lambda also increases the distance resolution for resolving small jitter coordinate bounds.
 
@@ -191,7 +191,7 @@ h_GCP_ISM_4_jit	= RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims)
 ```
 | Direct ISM with Jitter | GCP-ISM with Jitter $(\lambda=1)$ | GSP-ISM with Jitter $(\lambda=4)$|
 | --- | --- | --- |
-|<img src="./figs/direct_ISM_jit_N_3.png" alt="direct-ISM N = 3 with jitter" width="400"/>|<img src="./figs/GCP_ISM_jit_N_3.png" alt="GCP-ISM N = 3 with jitter" width="400"/>|<img src="./figs/GCP_ISM_4_jit_N_3.png" alt="GCP-ISM N = 3, lambda = 4 with jitter" width="400"/>|
+|<img src="./source/figs/direct_ISM_jit_N_3.png" alt="direct-ISM N = 3 with jitter" width="400"/>|<img src="./source/figs/GCP_ISM_jit_N_3.png" alt="GCP-ISM N = 3 with jitter" width="400"/>|<img src="./source/figs/GCP_ISM_4_jit_N_3.png" alt="GCP-ISM N = 3, lambda = 4 with jitter" width="400"/>|
 
 GCP-ISM supports frequency-dependent wall reflection coefficients, which can be specified by the latter’s frequency response at uniform spaced frequency bins from DC to Nyquist. It’s useful to design a minimum filter interpolating some set of desired amplitude responses over frequency, and constrained to be below or at unity.
 
@@ -214,7 +214,7 @@ h_GCP_ISM_cpx_refl = RIR_GCP_ISM_LUT_freq(T, s_full(ndims), r_full(ndims), l_ful
     		'mode', 'ifft', 'lambda', lambda, 'enable_disp', true);
 % exportgraphics(gcf, ['figs/GCP_ISM_freq_N_', num2str(3), '.png'])
 ```
-<img src="./figs/GCP_ISM_freq_N_3.png" alt="GCP-ISM N = 3, lambda = 4 with jitter" width="400"/>
+<img src="./source/figs/GCP_ISM_freq_N_3.png" alt="GCP-ISM N = 3, lambda = 4 with jitter" width="400"/>
 
 ## Publications
 
