@@ -226,7 +226,7 @@ P = 17;
 w = linspace(0, pi, P)';
 
 % Design two-tap minimum phase filter with target response at DC and Nyquist
-h_refl_2 = filter_two_tap_FIR(0, -2.5, true);
+h_refl_2 = filter_two_tap_FIR(0, -2.5, false);
 H_refl_2 = freqz(h_refl_2, 1, [w; pi]); H_refl_2 = H_refl_2(1:end-1);
 
 % Specify frequency responses per wall
@@ -244,7 +244,7 @@ w = linspace(0, pi, P)';
 
 % Design 8-tap minimum phase filter
 X_mag_oneside = db2mag([0, -3.5,  -2, -4]);
-h_refl_8 = filter_min_phase([X_mag_oneside, fliplr(X_mag_oneside)], 1, true);
+h_refl_8 = filter_min_phase([X_mag_oneside, fliplr(X_mag_oneside)], 1, false);
 H_refl_8 = freqz(h_refl_8, 1, [w; pi]); H_refl_8 = H_refl_8(1:end-1);
 
 % Specify frequency responses per wall
@@ -254,10 +254,19 @@ gamma_neg_freq_8 = H_refl_8 * gamma_neg_full;
 h_GCP_ISM_cpx_refl_8 = RIR_GCP_ISM_LUT_freq(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_freq_8(:, ndims), gamma_neg_freq_8(:, ndims), ...
     		'mode', 'ifft', 'lambda', lambda, 'enable_disp', true);
 % exportgraphics(gcf, ['figs/GCP_ISM_freq_8_N_', num2str(3), '.png'])
+
+% Plot wall reflection filter responses
+figure; hz_disp = logspace(log10(20), log10(24000), 256);
+H_refl_2_disp = freqz(h_refl_2, 1, hz_disp, 48000);
+H_refl_8_disp = freqz(h_refl_8, 1, hz_disp, 48000);
+semilogx(hz_disp, mag2db(abs(H_refl_2_disp)), hz_disp, mag2db(abs(H_refl_8_disp)), 'linewidth', 1.5); grid on; axis tight;
+xlabel('Frequency (Hz)', 'fontsize', 14); ylabel('Magnitude (dB)', 'fontsize', 14); title('Wall Reflection Filter Response', 'fontsize', 15); h_lg = legend('2-tap FIR', '8-tap FIR', 'location', 'best'); set(h_lg, 'fontsize', 13); set(gca, 'fontsize', 13)
+% exportgraphics(gcf, ['figs/GCP_ISM_freq_wall_refl_resp.png'])
+
 ```
-|GCP-ISM RIR with 2-tap Wall Reflection Filter |GCP-ISM RIR with 8-Tap Wall Reflection FIR |
-| --- | --- |
-|<img src="./source/figs/GCP_ISM_freq_2_N_3.png" alt="GCP-ISM N = 3 with 2-tap wall reflection filter" width="400"/>|<img src="./source/figs/GCP_ISM_freq_8_N_3.png" alt="GCP-ISM N = 3 with 8-tap wall reflection filter" width="400"/>|
+|GCP-ISM RIR with 2-tap Wall Reflection Filter |GCP-ISM RIR with 8-Tap Wall Reflection FIR | Wall Reflection Responses|
+| --- | --- | --- |
+|<img src="./source/figs/GCP_ISM_freq_2_N_3.png" alt="GCP-ISM N = 3 with 2-tap wall reflection filter" width="400"/>|<img src="./source/figs/GCP_ISM_freq_8_N_3.png" alt="GCP-ISM N = 3 with 8-tap wall reflection filter" width="400"/>|<img src="./source/figs/GCP_ISM_freq_wall_refl_resp.png" alt="GCP-ISM wall reflection filter responses" width="335"/>|
 
 ### Adding Randomized Coordinate Jitter
 
