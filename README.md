@@ -189,7 +189,7 @@ h_GCP_ISM_4_jit	= RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims)
 			'mode', mode, 'lambda', 4, 'jitter_coord_bnd', jitter_coord_bnd, 'direction', direction, 'T_direct', T_direct, 'enable_disp', true);
 % exportgraphics(gcf, ['figs/GCP_ISM_4_jit_N_', num2str(3), '.png'])
 ```
-| Direct ISM | GCP-ISM $\lambda=1$ | GSP-ISM $\lambda=4$ |
+| Direct ISM with Jitter | GCP-ISM with Jitter $(\lambda=1)$ | GSP-ISM with Jitter $(\lambda=4)$|
 | --- | --- | --- |
 |<img src="./figs/direct_ISM_jit_N_3.png" alt="direct-ISM N = 3 with jitter" width="400"/>|<img src="./figs/GCP_ISM_jit_N_3.png" alt="GCP-ISM N = 3 with jitter" width="400"/>|<img src="./figs/GCP_ISM_4_jit_N_3.png" alt="GCP-ISM N = 3, lambda = 4 with jitter" width="400"/>|
 
