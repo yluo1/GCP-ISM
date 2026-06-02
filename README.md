@@ -1,0 +1,224 @@
+# Gauss Circle Lattices with Geometric Convolutions for Synthesizing High Dimensional Image-Source Room Impulse Responses
+
+The image-source model (ISM) is a widely adopted method for efficiently simulating acoustic room impulse responses (RIRs) under specular reflection assumptions. Acoustic paths between source and receiver are traced to lattice points computed from successive reflections over bounding planes of the room. Rectangular rooms bound the total number of image-sources to be polynomial in the RIR's duration or distance $k$ equivalent, with degree equal the number of room dimensions $N$. Direct ISM simulations are therefore compute upper-bound by $O \left ( k^N \right )$, and consider only cases of $N \leq 3$ for tractability and real-world applications.
+
+This packages contains an alternative computational method that lowers the asymptotic compute bound to $O \left ( N k^2 \log k \right )$ for integer coordinates and room dimensions via reducing ISM lattice point counting to the classic Gauss circle problem (GCP). We extend the lattice counting model to frequency-dependent and reflection weighted image-sources in higher dimensions, relating solutions between successive dimensions via the convolution operator. Two constructions for realizing RIRs are presented, along with time-frequency controls, error and run-time analysis, and RIR statistics.
+
+## Gauss Circle Problem (GCP) Lattice Counting
+
+### Functions
+
+GCP_direct.m
+GCP_direct_recur.m
+GCP_DP.m
+GCP_conv.m
+
+### Sample Runtime Comparisons
+
+Small distance ```k <= 100```, and small dimension ```N = 3```:
+
+```
+k = 0:100;
+N = 3;
+tic; c_direct = GCP_direct(k, N); toc
+tic; c_direct_recur = GCP_direct_recur(k, N); toc
+tic; c_DP = GCP_DP(k, N); toc
+tic; c_conv = GCP_conv(k, N); toc
+
+err_recur = norm(c_direct - c_direct_recur)
+err_DP = norm(c_direct - c_DP)
+err_conv = norm(c_direct - c_conv)
+
+figure; semilogy(k, c_direct, '-', k, c_direct_recur, ':', k, c_DP, '.-', k, c_conv, '--', 'linewidth', 2); grid on; axis tight;
+h_lg = legend('Direct', 'Direct Recur', 'DP', 'Conv', 'location', 'best'); set(h_lg, 'fontsize', 13)
+xlabel('Distance k', 'fontsize', 14);
+ylabel('Count', 'fontsize', 14); 
+title(['Gauss Circle Problem N = ', num2str(N)], 'fontsize', 16);
+% exportgraphics(gcf, 'figs/GCP_small_k_small_N.png')
+```
+<img src="./figs/GCP_small_k_small_N.png" alt="GCP small k, small N" width="480"/>
+
+Small distance ```k <= 12```, and large dimension ```N = 20```:
+
+```
+k = 0:12;
+N = 20;
+tic; c_DP = GCP_DP(k, N); toc
+tic; c_conv = GCP_conv(k, N, 'conv'); toc
+err = norm(c_DP - c_conv)
+
+figure; semilogy(k, c_DP, '-', k, c_conv, '--', 'linewidth', 2); grid on; axis tight;
+h_lg = legend('DP', 'Conv', 'location', 'best'); set(h_lg, 'fontsize', 13)
+xlabel('Distance k', 'fontsize', 14);
+ylabel('Count', 'fontsize', 14); 
+title(['Gauss Circle Problem N = ', num2str(N)], 'fontsize', 16);
+% exportgraphics(gcf, 'figs/GCP_small_k_large_N.png')
+```
+<img src="./figs/GCP_small_k_large_N.png" alt="GCP small k, large N" width="480"/>
+
+Large distance ```k <= 500```, and small dimension ```N = 5```:
+
+```
+k = 0:500;
+N = 5;
+tic; c_DP = GCP_DP(k, N); toc
+tic; c_conv = GCP_conv(k, N, 'conv'); toc
+err = norm(c_DP - c_conv)
+
+figure; semilogy(k, c_DP, '-', k, c_conv, '--', 'linewidth', 2); grid on; axis tight;
+h_lg = legend('DP', 'Conv', 'location', 'best'); set(h_lg, 'fontsize', 13)
+xlabel('Distance k', 'fontsize', 14);
+ylabel('Count', 'fontsize', 14); 
+title(['Gauss Circle Problem N = ', num2str(N)], 'fontsize', 16);
+% exportgraphics(gcf, 'figs/GCP_large_k_small_N.png')
+```
+<img src="./figs/GCP_large_k_small_N.png" alt="GCP large k, small N" width="480"/>
+
+Large distance ```k <= 500```, and large dimension ```N = 20```:
+
+```
+k = 0:500;
+N = 20;
+tic; c_DP = GCP_DP(k, N); toc
+tic; c_conv = GCP_conv(k, N, 'conv'); toc
+err = norm(c_DP - c_conv)
+
+figure; semilogy(k, c_DP, '-', k, c_conv, '--', 'linewidth', 2); grid on; axis tight;
+h_lg = legend('DP', 'Conv', 'location', 'best'); set(h_lg, 'fontsize', 13)
+xlabel('Distance k', 'fontsize', 14);
+ylabel('Count', 'fontsize', 14); 
+title(['Gauss Circle Problem N = ', num2str(N)], 'fontsize', 16);
+% exportgraphics(gcf, 'figs/GCP_large_k_large_N.png')
+```
+<img src="./figs/GCP_large_k_large_N.png" alt="GCP large k, large N" width="480"/>
+
+## Gauss Circle Problem Image-Source Model (GCP-ISM) for Room Impulse Response (RIR) Generation
+
+### Functions
+
+GCP_ISM_direct.m
+GCP_ISM_recur.m
+GCP_ISM_DP.m
+GCP_ISM_conv.m
+
+RIR_ISM_direct.m
+RIR_GCP_ISM_direct.m
+RIR_GCP_ISM_LUT.m
+RIR_GCP_ISM_LUT_freq.m
+
+### Sample RIR Comparisons
+
+Sample code for generating RIRs for 1, 2, 3, 4, 5, 6 dimensional rooms via look-up-table (LUT) inverse-construction methods:
+```
+% Define source location per dimension (meters)
+s_full         = [1,    0,      1,  	0,     1,	3];
+
+% Define receiver location per dimension (meters)
+r_full         = [2,    1,      1,  	3,     2,	2];
+
+% Define room size per dimension (meters)
+l_full         = [5,    4,      3,  	7,     6,	8];
+
+% Define wall reflection coefficients per dimension (magnitude of intensity reflected)
+gamma_pos_full = [0.93, 0.8,  0.9,	0.93,   0.77,	0.82];
+gamma_neg_full = [0.72, 0.78, 0.93,	0.67,   0.52,	0.7];
+
+% Define total simulation distance (seconds)
+T = 0.3;
+
+% Number of room dimensions
+N = numel(s_full);	
+
+% Volume computation mode 'DP', 'conv'
+mode = 'conv';
+
+% lambda coordinate scaling
+lambda = 1;
+
+% RIR construction method 'forward', 'inverse'
+direction = 'inverse';
+
+% Direct method upto time (seconds)
+T_direct = 0;
+
+% Generate RIRs for increasing number of room dimensions
+h_GCP_ISM_cell = cell(1, N);
+for n = 1:N
+	ndims = 1:n;  %Simulate for subset of dimensions  
+
+	% Store RIR in cell array
+	h_GCP_ISM_cell{n} = RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_full(ndims), gamma_neg_full(ndims), ...
+    		'mode', mode, 'lambda', lambda, 'direction', direction, 'T_direct', T_direct, 'enable_disp', true);
+
+  	% exportgraphics(gcf, ['figs/GCP_ISM_N_', num2str(n), '.png'])
+end
+```
+<img src="./figs/GCP_ISM_N_1.png" alt="GCP-ISM N = 1" width="400"/>
+<img src="./figs/GCP_ISM_N_2.png" alt="GCP-ISM N = 2" width="400"/>
+<img src="./figs/GCP_ISM_N_3.png" alt="GCP-ISM N = 3" width="400"/>
+<img src="./figs/GCP_ISM_N_4.png" alt="GCP-ISM N = 4" width="400"/>
+<img src="./figs/GCP_ISM_N_5.png" alt="GCP-ISM N = 5" width="400"/>
+<img src="./figs/GCP_ISM_N_6.png" alt="GCP-ISM N = 6" width="400"/>
+
+For correctness, we can show that GCP-ISM matches direct ISM (see paper for runtime comparisons):
+```
+% Generate direct ISM RIR for N = 3
+ndims = 1:3;
+h_direct = RIR_ISM_direct(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_full(ndims), gamma_neg_full(ndims), 'enable_disp', true);
+% exportgraphics(gcf, ['figs/direct_ISM_N_', num2str(3), '.png'])
+```
+<img src="./figs/direct_ISM_N_3.png" alt="direct-ISM N = 3" width="400"/>
+
+GCP-ISM supports image-source coordinate jittering that is separable across dimensions. The regularity of image-source coordinates and induces sweeping echos and sweep streaks in the spectrogram. In the direct ISM method, adding a jitter to the image-source coordinates significantly reduces the sweep effects. For GCP-ISM, we can jitter the span of the signed distances between image-source to receiver when integrating over the lower dimensional slices. This also reduces the sweep effects, but to a lesser extent as the image-source coordinates' jitters are separable across dimension. Increasing the coordinate scaling factor lambda also increases the distance resolution for resolving small jitter coordinate bounds.
+
+```
+ndims = 1:3;
+
+% Image-source coordinates are sampled from a uniform distribution between [jitter_coord_bnd(1), jitter_coord_bnd(2)]
+jitter_coord_bnd = [-1e-1, 1e-1];
+
+h_direct_jit 	= RIR_ISM_direct(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_full(ndims), gamma_neg_full(ndims), 'enable_disp', true, 'jitter_coord_bnd', jitter_coord_bnd);
+% exportgraphics(gcf, ['figs/direct_ISM_jit_N_', num2str(3), '.png'])
+
+h_GCP_ISM_jit 	= RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_full(ndims), gamma_neg_full(ndims), ...
+			'mode', mode, 'lambda', 1, 'jitter_coord_bnd', jitter_coord_bnd, 'direction', direction, 'T_direct', T_direct, 'enable_disp', true);
+% exportgraphics(gcf, ['figs/GCP_ISM_jit_N_', num2str(3), '.png'])
+
+h_GCP_ISM_4_jit	= RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_full(ndims), gamma_neg_full(ndims), ...
+			'mode', mode, 'lambda', 4, 'jitter_coord_bnd', jitter_coord_bnd, 'direction', direction, 'T_direct', T_direct, 'enable_disp', true);
+% exportgraphics(gcf, ['figs/GCP_ISM_4_jit_N_', num2str(3), '.png'])
+```
+<img src="./figs/direct_ISM_jit_N_3.png" alt="direct-ISM N = 3 with jitter" width="400"/>
+<img src="./figs/GCP_ISM_jit_N_3.png" alt="GCP-ISM N = 3 with jitter" width="400"/>
+<img src="./figs/GCP_ISM_4_jit_N_3.png" alt="GCP-ISM N = 3, lambda = 4 with jitter" width="400"/>
+
+GCP-ISM supports frequency-dependent wall reflection coefficients, which can be specified by the latter’s frequency response at uniform spaced frequency bins from DC to Nyquist. It’s useful to design a minimum filter interpolating some set of desired amplitude responses over frequency, and constrained to be below or at unity.
+
+```
+ndims = 1:3;
+
+% Specify number of frequency points between DC and Nyquist
+P = 17;
+w = linspace(0, pi, P)';
+
+% Design two-tap minimum phase filter with target response at DC and Nyquist
+h_refl = filter_two_tap_FIR(0, -2.5, false);
+H_refl = freqz(h_refl, 1, [w; pi]); H_refl = H_refl(1:end-1);
+
+% Specify frequency responses per wall
+gamma_pos_freq = H_refl * gamma_pos_full;
+gamma_neg_freq = H_refl * gamma_neg_full;
+
+h_GCP_ISM_cpx_refl = RIR_GCP_ISM_LUT_freq(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_freq(:, ndims), gamma_neg_freq(:, ndims), ...
+    		'mode', 'ifft', 'lambda', lambda, 'enable_disp', true);
+% exportgraphics(gcf, ['figs/GCP_ISM_freq_N_', num2str(3), '.png'])
+```
+<img src="./figs/GCP_ISM_freq_N_3.png" alt="GCP-ISM N = 3, lambda = 4 with jitter" width="400"/>
+
+## Publications
+
+If you use this package for your work, please cite our paper:
+
+>Y. Luo, "Gauss Circle Lattices with Geometric Convolutions for Synthesizing High Dimensional Image-Source Room Impulse Responses", 29th International Conference on Digital Audio Effects. DAFx, 2026.
+
+## License
