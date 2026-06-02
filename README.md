@@ -153,12 +153,13 @@ for n = 1:N
   	% exportgraphics(gcf, ['figs/GCP_ISM_N_', num2str(n), '.png'])
 end
 ```
-<img src="./figs/GCP_ISM_N_1.png" alt="GCP-ISM N = 1" width="400"/>
-<img src="./figs/GCP_ISM_N_2.png" alt="GCP-ISM N = 2" width="400"/>
-<img src="./figs/GCP_ISM_N_3.png" alt="GCP-ISM N = 3" width="400"/>
-<img src="./figs/GCP_ISM_N_4.png" alt="GCP-ISM N = 4" width="400"/>
-<img src="./figs/GCP_ISM_N_5.png" alt="GCP-ISM N = 5" width="400"/>
-<img src="./figs/GCP_ISM_N_6.png" alt="GCP-ISM N = 6" width="400"/>
+| N = 1 | N = 2 | N = 3 |
+| --- | --- | --- |
+|<img src="./figs/GCP_ISM_N_1.png" alt="GCP-ISM N = 1" width="400"/>|<img src="./figs/GCP_ISM_N_2.png" alt="GCP-ISM N = 2" width="400"/>|<img src="./figs/GCP_ISM_N_3.png" alt="GCP-ISM N = 3" width="400"/>|
+
+| N = 4 | N = 5 | N = 6 |
+| --- | --- | --- |
+|<img src="./figs/GCP_ISM_N_4.png" alt="GCP-ISM N = 4" width="400"/>|<img src="./figs/GCP_ISM_N_5.png" alt="GCP-ISM N = 5" width="400"/>|<img src="./figs/GCP_ISM_N_6.png" alt="GCP-ISM N = 6" width="400"/>|
 
 For correctness, we can show that GCP-ISM matches direct ISM (see paper for runtime comparisons):
 ```
