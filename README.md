@@ -8,7 +8,11 @@ This packages contains an alternative computational method that lowers the asymp
 
 The classic $\textrm{GCP}(k, N)$ counts the number of integers in $\mathbf{\nu} \in \mathcal{Z}^N$ upper-bounded by the Euclidean norm $||\mathbf{\nu}||_2 \leq k$ for distance $k$. For efficient counting in $N$ dimensions, we can express the solution in terms of summations over solutions in $N-1$ dimensions given by  
 
+<div style="text-align: right">
+  
 $$\textrm{GCP}(k, N) = \left\lbrace \begin{aligned} 1 + 2 \lfloor k \rfloor, & \qquad N = 1\newline \sum_{m = -\lfloor k \rfloor}^{\lfloor k \rfloor } \textrm{GCP}(\sqrt{k^2 - m^2}, N-1), & \qquad  N > 1\end{aligned}\right. .$$
+
+</div>
 
 As a result, computing GCP in high-dimensions has an elegant recurrence relation, and can be memoized for integers $k^2 - m^2$ to yield a dynamic programming solution for $k \in \mathcal{Z}_{\geq 0}$. Furthermore, solutions for varying $k$ can be expressed via convolution operator between a sparse square-kernel and the preceding solutions in the lower dimensions. The following functions implement this formulation.
 
