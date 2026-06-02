@@ -6,16 +6,25 @@ This packages contains an alternative computational method that lowers the asymp
 
 ## Gauss Circle Problem (GCP) Lattice Counting
 
+The classic $\textrm{GCP}(k, \, N)$ counts the number of integers in $\bold{\nu} \in \mathcal{Z}^N$ upper-bounded by the Euclidean norm $||\bold{\nu}||_2 \leq k$ for distance $k$. For efficient counting in $N$ dimensions, we can express the solution in terms of summations over solutions in $N-1$ dimensions given by  
+> $\textrm{GCP}(k, \, N) = \left \{ \begin{array}{cc}
+> 1 + 2 \lfloor k \rfloor, & N = 1\\
+> \sum_{m = -\lfloor k \rfloor}^{\lfloor k \rfloor } \textrm{GCP}(\sqrt{k^2 - m^2}, \, N-1), & N > 1\end{array}\right .$.
+
+As a result, computing GCP in high-dimensions has an elegant recurrence relation, and can be memoized for integers $k^2 - m^2$ to yield a dynamic programming solution for $k \in \mathcal{Z}_{\geq 0}$. Furthermore, solutions for varying $k$ can be expressed via convolution operator between a sparse square-kernel and the preceding solutions in the lower dimensions. The following functions implement this formulation.
+
 ### Functions
 
-GCP_direct.m
-GCP_direct_recur.m
-GCP_DP.m
-GCP_conv.m
+| File | Description|
+| --- | --- |
+|GCP_direct.m| Reference (brute-force) method|
+|GCP_direct_recur.m| Recurrence relation|
+|GCP_DP.m| Dynamic programming|
+|GCP_conv.m | Convolution reformulation|
 
-### Sample Runtime Comparisons
+### Sample Runtime Comparisons For Varying Distance $k$ and Dimensions $N$
 
-Small distance ```k <= 100```, and small dimension ```N = 3```:
+Small distance $k \leq 100$, and small dimension $N=3$:
 
 ```
 k = 0:100;
@@ -38,7 +47,7 @@ title(['Gauss Circle Problem N = ', num2str(N)], 'fontsize', 16);
 ```
 <img src="./source/figs/GCP_small_k_small_N.png" alt="GCP small k, small N" width="400"/>
 
-Small distance ```k <= 12```, and large dimension ```N = 20```:
+Small distance $k \leq 12$, and large dimension $N = 20$:
 
 ```
 k = 0:12;
@@ -56,7 +65,7 @@ title(['Gauss Circle Problem N = ', num2str(N)], 'fontsize', 16);
 ```
 <img src="./source/figs/GCP_small_k_large_N.png" alt="GCP small k, large N" width="400"/>
 
-Large distance ```k <= 500```, and small dimension ```N = 5```:
+Large distance  $k \leq 500$, and small dimension  $N \leq 5$:
 
 ```
 k = 0:500;
@@ -74,7 +83,7 @@ title(['Gauss Circle Problem N = ', num2str(N)], 'fontsize', 16);
 ```
 <img src="./source/figs/GCP_large_k_small_N.png" alt="GCP large k, small N" width="400"/>
 
-Large distance ```k <= 500```, and large dimension ```N = 20```:
+Large distance  $k \leq 500$, and large dimension $N = 20$:
 
 ```
 k = 0:500;
@@ -94,19 +103,31 @@ title(['Gauss Circle Problem N = ', num2str(N)], 'fontsize', 16);
 
 ## Gauss Circle Problem Image-Source Model (GCP-ISM) for Room Impulse Response (RIR) Generation
 
+We extend GCP for RIR generation by considering the classic ISM by
+> J.B. Allen and D.A. Berkley, "Image method for efficiently simulating small‐room acoustics," The Journal of the Acoustical Society of America. 1979 Apr 1;65(4):943-50.
+
+The RIR under ISM is a summation of acoustic path contributions in directions of the a sound-source repeatedly reflected over orthogonal planes of a room. Imaged sound-sources have coordinates that can be expressed in terms of translations over scaled lattice coordinates. Acoustic attenuation from wall reflections can be expressed in terms of weighted summation. We can therefore weight GCP summations and modify its integration bounds to compute the total acoustic path contributions as a function of distance $k$. Differentiating the latter volume function yields the RIR.
+
+Please see the [publications]($Publications) section for further details.
+
 ### Functions
 
-GCP_ISM_direct.m
-GCP_ISM_recur.m
-GCP_ISM_DP.m
-GCP_ISM_conv.m
+GCP-ISM volume functions:
+| File | Description|
+| --- | --- |
+|GCP_ISM_direct.m| Reference solution|
+|GCP_ISM_recur.m|Recurrence relation|
+|GCP_ISM_DP.m| Dynamic programming|
+|GCP_ISM_conv.m|Convolution reformulation|
 
-RIR_ISM_direct.m
-RIR_GCP_ISM_direct.m
-RIR_GCP_ISM_LUT.m
-RIR_GCP_ISM_LUT_freq.m
+RIR construction functions:
+| File | Description|
+| --- | --- |
+|RIR_ISM_direct.m|Reference ISM|
+|RIR_GCP_ISM_LUT.m|GCP-ISM with frequency-independent wall reflection|
+|RIR_GCP_ISM_LUT_freq.m|GCP-ISM with frequency-dependent wall reflections|
 
-### Sample RIR Comparisons
+### RIR Comparisons for Increasing Room Dimensions
 
 Sample code for generating RIRs for 1, 2, 3, 4, 5, 6 dimensional rooms via look-up-table (LUT) inverse-construction methods:
 ```
@@ -170,28 +191,31 @@ h_direct = RIR_ISM_direct(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_
 ```
 <img src="./source/figs/direct_ISM_N_3.png" alt="direct-ISM N = 3" width="400"/>
 
-GCP-ISM supports image-source coordinate jittering that is separable across dimensions. The regularity of image-source coordinates and induces sweeping echos and sweep streaks in the spectrogram. In the direct ISM method, adding a jitter to the image-source coordinates significantly reduces the sweep effects. For GCP-ISM, we can jitter the span of the signed distances between image-source to receiver when integrating over the lower dimensional slices. This also reduces the sweep effects, but to a lesser extent as the image-source coordinates' jitters are separable across dimension. Increasing the coordinate scaling factor lambda also increases the distance resolution for resolving small jitter coordinate bounds.
+### Modifying Wall Reflection Coefficients
+We can consider wall reflection coefficients $\Gamma_{\pm n}$ with negative impedances for breaking up the regularity of acoustic reflections along  $\pm$ axis aligned walls belonging to the room’s $n^{th}$ dimension.
 
 ```
-ndims = 1:3;
+ndims = 1:6;
+varargin = {'mode', mode, 'lambda', lambda, 'direction', direction, 'T_direct', T_direct, 'enable_disp', true, 'clim', [-160, -40], 'RT60_dB_hi', -20, 'RT60_dB_lo', -40};
 
-% Image-source coordinates are sampled from a uniform distribution between [jitter_coord_bnd(1), jitter_coord_bnd(2)]
-jitter_coord_bnd = [-1e-1, 1e-1];
+% Phase-flip both +- facing wall reflections coefficients
+h_refl_neg_neg = RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims), -gamma_pos_full(ndims), -gamma_neg_full(ndims), varargin{:});
+% exportgraphics(gcf, ['figs/GCP_ISM_N_', num2str(6), '_refl_neg_neg.png'])
 
-h_direct_jit 	= RIR_ISM_direct(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_full(ndims), gamma_neg_full(ndims), 'enable_disp', true, 'jitter_coord_bnd', jitter_coord_bnd);
-% exportgraphics(gcf, ['figs/direct_ISM_jit_N_', num2str(3), '.png'])
+% Phase-flip + facing wall reflections coefficients
+h_refl_neg_pos = RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims), -gamma_pos_full(ndims), gamma_neg_full(ndims), varargin{:});
+% exportgraphics(gcf, ['figs/GCP_ISM_N_', num2str(6), '_refl_neg_pos.png'])
 
-h_GCP_ISM_jit 	= RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_full(ndims), gamma_neg_full(ndims), ...
-			'mode', mode, 'lambda', 1, 'jitter_coord_bnd', jitter_coord_bnd, 'direction', direction, 'T_direct', T_direct, 'enable_disp', true);
-% exportgraphics(gcf, ['figs/GCP_ISM_jit_N_', num2str(3), '.png'])
-
-h_GCP_ISM_4_jit	= RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_full(ndims), gamma_neg_full(ndims), ...
-			'mode', mode, 'lambda', 4, 'jitter_coord_bnd', jitter_coord_bnd, 'direction', direction, 'T_direct', T_direct, 'enable_disp', true);
-% exportgraphics(gcf, ['figs/GCP_ISM_4_jit_N_', num2str(3), '.png'])
+% Phase-flip alternating wall reflections coefficients
+h_refl_alt_flip = RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_full(ndims) .* (-1).^((ndims) + 0), gamma_neg_full(ndims) .* (-1).^((ndims) + 1), varargin{:});
+% exportgraphics(gcf, ['figs/GCP_ISM_N_', num2str(6), '_refl_alt_flip.png'])
 ```
-| Direct ISM with Jitter | GCP-ISM with Jitter $(\lambda=1)$ | GSP-ISM with Jitter $(\lambda=4)$|
+| $-\Gamma_{+n}$, $\,-\Gamma_{-n}$ | $-\Gamma_{+n}$, $\,\Gamma_{-n}$  | $(-1)^n  \, \Gamma_{+n}$, $ \, (-1)^{n+1} \, \Gamma_{-n}$ |
 | --- | --- | --- |
-|<img src="./source/figs/direct_ISM_jit_N_3.png" alt="direct-ISM N = 3 with jitter" width="400"/>|<img src="./source/figs/GCP_ISM_jit_N_3.png" alt="GCP-ISM N = 3 with jitter" width="400"/>|<img src="./source/figs/GCP_ISM_4_jit_N_3.png" alt="GCP-ISM N = 3, lambda = 4 with jitter" width="400"/>|
+|<img src="./source/figs/GCP_ISM_N_6_refl_neg_neg.png" alt="GCP-ISM N = 6, phase-flip +- walls" width="400"/>|<img src="./source/figs/GCP_ISM_N_6_refl_neg_pos.png" alt="GCP-ISM N = 6, phase-flip +walls" width="400"/>|<img src="./source/figs/GCP_ISM_N_6_refl_alt_flip.png" alt="GCP-ISM N = 6, alternate phase flip" width="400"/>|
+
+
+### Frequency Dependent Wall Reflections
 
 GCP-ISM supports frequency-dependent wall reflection coefficients, which can be specified by the latter’s frequency response at uniform spaced frequency bins from DC to Nyquist. It’s useful to design a minimum filter interpolating some set of desired amplitude responses over frequency, and constrained to be below or at unity.
 
@@ -216,6 +240,31 @@ h_GCP_ISM_cpx_refl = RIR_GCP_ISM_LUT_freq(T, s_full(ndims), r_full(ndims), l_ful
 ```
 <img src="./source/figs/GCP_ISM_freq_N_3.png" alt="GCP-ISM N = 3, lambda = 4 with jitter" width="400"/>
 
+### Adding Randomized Coordinate Jitter
+
+GCP-ISM supports image-source coordinate jittering that is separable across dimensions. The regularity of image-source coordinates and induces sweeping echos and sweep streaks in the spectrogram. In the direct ISM method, adding a jitter to image-sources' coordinates significantly reduces the sweep effects. For GCP-ISM, we can jitter the span of the signed distances between image-sources to the receiver when integrating over the lower dimensional slices. This also reduces the sweep effects, but not to the extent of independent and identically distributed sampling per coordinate; GCP image-source jitters remain separable across dimension. Increasing the coordinate scaling factor lambda also increases the distance resolution for resolving small jitter coordinate bounds.
+
+```
+ndims = 1:3;
+
+% Image-source coordinates are sampled from a uniform distribution between [jitter_coord_bnd(1), jitter_coord_bnd(2)]
+jitter_coord_bnd = [-1e-1, 1e-1]; % Within +- 10 cm
+
+h_direct_jit 	= RIR_ISM_direct(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_full(ndims), gamma_neg_full(ndims), 'enable_disp', true, 'jitter_coord_bnd', jitter_coord_bnd);
+% exportgraphics(gcf, ['figs/direct_ISM_jit_N_', num2str(3), '.png'])
+
+h_GCP_ISM_jit 	= RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_full(ndims), gamma_neg_full(ndims), ...
+			'mode', mode, 'lambda', 1, 'jitter_coord_bnd', jitter_coord_bnd, 'direction', direction, 'T_direct', T_direct, 'enable_disp', true);
+% exportgraphics(gcf, ['figs/GCP_ISM_jit_N_', num2str(3), '.png'])
+
+h_GCP_ISM_4_jit	= RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_pos_full(ndims), gamma_neg_full(ndims), ...
+			'mode', mode, 'lambda', 4, 'jitter_coord_bnd', jitter_coord_bnd, 'direction', direction, 'T_direct', T_direct, 'enable_disp', true);
+% exportgraphics(gcf, ['figs/GCP_ISM_4_jit_N_', num2str(3), '.png'])
+```
+| Direct ISM with Jitter | GCP-ISM with Jitter $(\lambda=1)$ | GSP-ISM with Jitter $(\lambda=4)$|
+| --- | --- | --- |
+|<img src="./source/figs/direct_ISM_jit_N_3.png" alt="direct-ISM N = 3 with jitter" width="400"/>|<img src="./source/figs/GCP_ISM_jit_N_3.png" alt="GCP-ISM N = 3 with jitter" width="400"/>|<img src="./source/figs/GCP_ISM_4_jit_N_3.png" alt="GCP-ISM N = 3, lambda = 4 with jitter" width="400"/>|
+
 ## Publications
 
 If you use this package for your work, please cite our paper:
@@ -223,3 +272,10 @@ If you use this package for your work, please cite our paper:
 >Y. Luo, "Gauss Circle Lattices with Geometric Convolutions for Synthesizing High Dimensional Image-Source Room Impulse Responses", 29th International Conference on Digital Audio Effects. DAFx, 2026.
 
 ## License
+> GCP-ISM (c) by Yuancheng Luo
+>
+>GCP-ISM is licensed under a
+Creative Commons Attribution 4.0 International License.
+>
+>You should have received a copy of the license along with this
+work. If not, see <https://creativecommons.org/licenses/by/4.0/>.
