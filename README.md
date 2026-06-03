@@ -102,7 +102,7 @@ title(['Gauss Circle Problem N = ', num2str(N)], 'fontsize', 16);
 
 ## Gauss Circle Problem Image-Source Model (GCP-ISM) for Room Impulse Response (RIR) Generation
 
-We extend GCP for RIR generation by considering the classic ISM by
+We extend GCP for RIR generation by considering the classic ISM paper by
 > J.B. Allen and D.A. Berkley, "Image method for efficiently simulating small‐room acoustics," The Journal of the Acoustical Society of America. 1979 Apr 1;65(4):943-50.
 
 The RIR under ISM is a summation of acoustic path contributions in directions of the a sound-source repeatedly reflected over orthogonal planes of a room. Imaged sound-sources have coordinates that can be expressed in terms of translations over scaled lattice coordinates. Acoustic attenuation from wall reflections can be expressed in terms of weighted summation. We can therefore weight GCP summations and modify its integration bounds to compute the total acoustic path contributions as a function of distance $k$. Differentiating the latter volume function yields the RIR.
@@ -191,7 +191,7 @@ h_direct = RIR_ISM_direct(T, s_full(ndims), r_full(ndims), l_full(ndims), gamma_
 <img src="./source/figs/direct_ISM_N_3.png" alt="direct-ISM N = 3" width="400"/>
 
 ### Modifying Wall Reflection Coefficients
-We can consider wall reflection coefficients $\Gamma_{\pm n}$ with negative impedances for breaking up the regularity of acoustic reflections along  $\pm$ axis aligned walls belonging to the room’s $n^{th}$ dimension.
+We can consider wall reflection coefficients $\Gamma_{\pm n}$ with negative impedances (180 degree phase-inversion) for breaking up the regularity of acoustic reflections along  $\pm$ axis aligned walls that belong to the room’s $n^{th}$ dimension.
 
 ```
 ndims = 1:6;
@@ -295,9 +295,13 @@ h_GCP_ISM_4_jit	= RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims)
 
 ## Publications
 
-If you use this package for your work, please cite our paper:
+If you use this package for your work, please cite the following:
 
 >Y. Luo, "Gauss Circle Lattices with Geometric Convolutions for Synthesizing High Dimensional Image-Source Room Impulse Responses", 29th International Conference on Digital Audio Effects. DAFx, 2026.
+
+## Other Implementations
+
+An earlier implementation was developed for [Riveria](https://nuspaceaudio.com/2017/02/07/riviera-fast-hybrid-reverb-plugin-for-modeling-high-dimensional-spaces/) (free VST/AU plugin) at my company [NuSpace Audio](https://nuspaceaudio.com/) in 2017. In fact, the original theoretical work was documented in a series of [blog posts](https://nuspaceaudio.com/2017/02/13/geometric-audio-2-gauss-circle-problem-for-integer-room-models/), and was only recently completed for academic publishing after a long hiatus.
 
 ## License
 > GCP-ISM (c) by Yuancheng Luo
