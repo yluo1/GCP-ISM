@@ -295,7 +295,7 @@ h_GCP_ISM_4_jit	= RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims)
 
 ## Publications
 
-If you use this package for your work, please cite the following paper to be accepted at DAFx 2026:
+If you use this package for your work, please cite the following [paper](https://arxiv.org/abs/2606.04358) to be accepted at DAFx 2026:
 
 >Y. Luo, "Gauss Circle Lattices with Geometric Convolutions for Synthesizing High Dimensional Image-Source Room Impulse Responses", 29th International Conference on Digital Audio Effects. DAFx, 2026.
 
