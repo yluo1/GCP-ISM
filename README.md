@@ -2,7 +2,7 @@
 
 The image-source model (ISM) is a widely adopted method for efficiently simulating acoustic room impulse responses (RIRs) under specular reflection assumptions. Acoustic paths between source and receiver are traced to lattice points computed from successive reflections over bounding planes of the room. Rectangular rooms bound the total number of image-sources to be polynomial in the RIR's duration or distance $k$ equivalent, with degree equal the number of room dimensions $N$. Direct ISM simulations are therefore compute upper-bound by $O \left ( k^N \right )$, and consider only cases of $N \leq 3$ for tractability and real-world applications.
 
-This Matlab repository contains an alternative computational method that lowers the asymptotic compute bound to $O \left ( N k^2  \log k \right )$ for integer coordinates and room dimensions via reducing ISM lattice point counting to the classic Gauss circle problem (GCP). We extend the lattice counting model to frequency-dependent and reflection weighted image-sources in higher dimensions, relating solutions between successive dimensions via the convolution operator. Two constructions for realizing RIRs are presented, along with time-frequency controls, error and run-time analysis, and RIR statistics. See our [paper](https://arxiv.org/abs/2606.04358) for more details.
+This Matlab repository contains an alternative computational method that lowers the asymptotic compute bound to $O \left ( N k^2  \log k \right )$ for integer coordinates and room dimensions via reducing ISM lattice point counting to the classic Gauss circle problem (GCP). We extend the lattice counting model to frequency-dependent and reflection weighted image-sources in higher dimensions, relating solutions between successive dimensions via the convolution operator. Two constructions for realizing RIRs are presented, along with time-frequency controls, error and run-time analysis, and RIR statistics. See our [paper](https://arxiv.org/abs/2606.04358) and for more details, and listen to some [sound samples](https://nuspaceaudio.com/2026/08/07/geometric-audio-open-sourced-paper-code-and-sound-samples/).
 
 ## Gauss Circle Problem (GCP) Lattice Counting
 
@@ -320,6 +320,7 @@ tic;
 [h_stereo_short_cell_mex, h_stereo_medium_cell_mex, h_stereo_long_cell_mex] = gen_demo_RIRs_mex(T, lambda, P, Fs);
 duration_mex = toc
 ```
+Check out the [sound samples](https://nuspaceaudio.com/2026/08/07/geometric-audio-open-sourced-paper-code-and-sound-samples/) after convolving some dry instruments with the RIRs.
 
 ## Publications
 
