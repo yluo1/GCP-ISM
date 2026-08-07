@@ -293,9 +293,37 @@ h_GCP_ISM_4_jit	= RIR_GCP_ISM_LUT(T, s_full(ndims), r_full(ndims), l_full(ndims)
 | --- | --- | --- |
 |<img src="./source/figs/direct_ISM_jit_N_3.png" alt="direct-ISM N = 3 with jitter" width="400"/>|<img src="./source/figs/GCP_ISM_jit_N_3.png" alt="GCP-ISM N = 3 with jitter" width="400"/>|<img src="./source/figs/GCP_ISM_4_jit_N_3.png" alt="GCP-ISM N = 3, lambda = 4 with jitter" width="400"/>|
 
+## Code-generation and Demo RIR Samples
+
+A sample wrapper (gen_demo_RIRs.m) for Matlab to C++ code-generation is included for accelerating RIR generation of a collection room/source/receiver presets:
+- Stereo RIR (offset receiver locations)
+- Short, medium, long RIR time durations
+- 1 to 6 dimensions
+- Frequency (in)dependent wall-reflections
+```
+% Code-generation for mex binary
+codegen('gen_demo_RIRs', '-o', 'gen_demo_RIRs_mex')
+
+% Input
+T = 0.5;		% Shortest duration
+lambda = 1;		% Coordinate scaling for increasing resolution
+P = 1;			% Frequency-independent
+%% P = 128;		% Frequency-dependent (Note: Runtime is P x longer)
+Fs = 48000;		% Sample rate
+
+% Output
+% h_stereo_short_cell:       [2 x 6]  cell matrix, stereo [h_left, h_right; ...] RIRs for N dimensions (rows) 1 to 6
+% h_stereo_medium_cell:      [2 x 6]  cell matrix, stereo [h_left, h_right; ...] RIRs for N dimensions (rows) 1 to 6
+% h_stereo_long_cell:        [2 x 6]  cell matrix, stereo [h_left, h_right; ...] RIRs for N dimensions (rows) 1 to 6
+
+tic;
+[h_stereo_short_cell_mex, h_stereo_medium_cell_mex, h_stereo_long_cell_mex] = gen_demo_RIRs_mex(T, lambda, P, Fs);
+duration_mex = toc
+```
+
 ## Publications
 
-If you use this package for your work, please cite the following [paper](https://arxiv.org/abs/2606.04358) to be accepted at DAFx 2026:
+If you use this package for your work, please cite the following [paper](https://arxiv.org/abs/2606.04358) accepted at DAFx 2026:
 
 >Y. Luo, "Gauss Circle Lattices with Geometric Convolutions for Synthesizing High Dimensional Image-Source Room Impulse Responses", 29th International Conference on Digital Audio Effects. DAFx, 2026.
 

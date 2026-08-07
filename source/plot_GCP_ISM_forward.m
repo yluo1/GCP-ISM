@@ -1,4 +1,4 @@
-%Generate and plot Forward GCP-ISM
+%Generate and plot forward GCP-ISM construction
 
 %Author: Yuancheng Luo, 2026
 

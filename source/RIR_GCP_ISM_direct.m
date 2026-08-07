@@ -19,13 +19,18 @@
 %options:       struct
 %options.mode:  Evaluation method,  'direct'        Compute all image-sources within evaluation distances
 %                                   'recursive'     Recursive evaluation of S
+%options.Fs:            Sample rate
+%options.mode:          String, counting method {'direct', 'recursive'}
+%                               'direct'            Generate all lattice points within distance ball
+%                               'recursive':        Compute from sub-solutions of lower dimension
+%options.enable_disp:   Logical, if true, display RIR
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Output
 %h:        [ceil(T * Fs) x 1] RIR
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Sample usage
+%Sample usage: Generate and compare direct GCP_ISM with ISM
 
 % gamma_pos = [0.93, 0.8, 0.9];
 % gamma_neg = [0.72, 0.78, 0.8];
@@ -34,7 +39,7 @@
 % r = [2, 1, 1];
 % l = [5, 6, 3];
 
-%h_ref = RIR_ISM_direct(T, s, r, l, gamma_pos, gamma_neg, 'enable_disp', true);
+%h_ref = RIR_ISM_direct(T, s, r, l, gamma_pos, gamma_neg, 'enable_disp', true, 'ceil_sample_dist', true);
 %h = RIR_GCP_ISM_direct(T, s, r, l, gamma_pos, gamma_neg, 'enable_disp', true);
 %norm(h_ref - h)
 %mag2db(norm(h_ref - h) / norm(h_ref))
@@ -44,22 +49,21 @@
 function [h] = RIR_GCP_ISM_direct(T, s, r, l, gamma_pos, gamma_neg, options)
 
 arguments
-    T = 0.2;
-    s = [1 2 1];
-    r = [2 1 1];
-    l = [5 6 3];
-    gamma_pos = [0.93, 0.8, 0.9];
-    gamma_neg = [0.72, 0.78, 0.8];
+    T (1,1) double {mustBeNonnegative} = 0.2;
+    s (1,:) double = [1 2 1];
+    r (1,:) double = [2 1 1];
+    l (1,:) double = [5 6 3];
+    gamma_pos (1,:) double = [0.93, 0.8, 0.9];
+    gamma_neg (1,:) double = [0.72, 0.78, 0.8];
 
     %Options struct
-    options.Fs = 48000;
-    options.mode {mustBeMember(options.mode, {'direct', 'recursive'})}  = 'recursive';
+    options.Fs (1,1) double {mustBeNonnegative} = 48000;
+    options.mode (1,:) char {mustBeMember(options.mode, {'direct', 'recursive'})}  = 'recursive';
     
     %Display options
-    options.enable_disp = false;
+    options.enable_disp (1,1) logical = false;
     
 end
-
 
 N = numel(s);
 

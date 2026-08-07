@@ -20,12 +20,12 @@
 %options:       struct
 
 %options.Fs:                    Sample rate
-
 %options.ceil_sample_dist:      Logical, if true round up image-source delay to integer sample
-
+%options.kernel_sample_width:   Half-window size of Lanczos kernel, must be non-negative integer
 %options.jitter_coord_bnd:      [1 x 2]    Jitter the image source coordinates by 
 %                               unifrnd(min(jitter_coord_bnd), max(jitter_coord_bnd))
 %                               (Default = [0, 0] is disabled)
+%options.jitter_srand:          Random seed for jitter
 
 %options.enable_disp:           Logical, if true, display RIR
 
@@ -50,24 +50,24 @@
 function [h, h_fig] = RIR_ISM_direct(T, s, r, l, gamma_pos, gamma_neg, options)
 
 arguments
-    T = 0.2;
-    s = [1 2 1];
-    r = [2 1 1];
-    l = [5 6 3];
-    gamma_pos = [0.93, 0.8, 0.9];
-    gamma_neg = [0.72, 0.78, 0.8];
+    T (1,:) double = 0.2;
+    s (1,:) double = [1 2 1];
+    r (1,:) double = [2 1 1];
+    l (1,:) double = [5 6 3];
+    gamma_pos (1,:) double = [0.93, 0.8, 0.9];
+    gamma_neg (1,:) double = [0.72, 0.78, 0.8];
 
     %Options struct
-    options.Fs = 48000;
-    options.ceil_sample_dist = false;   %Logical, if true round up image-source delay to integer sample 
+    options.Fs (1,1) double {mustBeNonnegative} = 48000;
+    options.ceil_sample_dist (1,1) logical = false;
    
-    options.kernel_sample_width = 10;
+    options.kernel_sample_width (1,1) double {mustBeNonnegative} = 10;
 
-    options.jitter_coord_bnd = [0, 0];
-    options.jitter_srand = 6452;
+    options.jitter_coord_bnd (1,2) double = [0, 0];
+    options.jitter_srand (1,1) double {mustBeInteger, mustBeNonnegative} = 6452;
 
     %Display options
-    options.enable_disp = false;
+    options.enable_disp (1,1) logical = false;
     
 end
 

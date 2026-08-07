@@ -5,7 +5,26 @@
 
 %Input
 %h:     [M x 1] RIR 
-%options: struct
+
+%options:                       struct
+%options.Fs:                    Sample rate
+%options.enable_disp:           Logical, if true, display RIR
+%options.win_size:              Window size
+%options.N_FFT:                 Number of points in FFT
+%options.clim:                  [1 x 2] dB limits for color bar [min, max]
+%options.spectrogram_scale:     String, spectrogram scaling {'linear', 'log'}
+%options.fig_size:              [1 x 2] Figure width, height (pixels)
+%options.font_size:             Font size
+ 
+%options.name:                 String, figure name
+%options.colormap:             Color map
+%options.legend_location:      String, legend location
+
+%options.RT60_dB_hi:           dB upperbound of echo decay curve for computing RT60
+%options.RT60_dB_lo:           dB lowerbound of echo decay curve for computing RT60
+
+%options.disp_EDC_fig:         Logical, if true, disp echo decay curve
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Output
@@ -17,23 +36,23 @@ function [h_fig, h_edc] = plot_ISM_RIR(h, options)
 arguments
     h = [1];
 
-    options.Fs = 48000;
-    options.enable_disp = false;
-    options.win_size = 512;
-    options.N_FFT = 512;
-    options.clim = [-120, -40];
-    options.spectrogram_scale {mustBeMember(options.spectrogram_scale, {'linear', 'log'})}  = 'linear';
-    options.fig_size = [900 600] * (3/4);
-    options.font_size = 16;
+    options.Fs (1,1) double {mustBeNonnegative} = 48000;
+    options.enable_disp (1,1) logical = false;
+    options.win_size (1,1) double {mustBePositive, mustBeInteger} = 512;
+    options.N_FFT (1,1) double {mustBePositive, mustBeInteger}  = 512;
+    options.clim (1,2) double  = [-120, -40];
+    options.spectrogram_scale (1,:) char {mustBeMember(options.spectrogram_scale, {'linear', 'log'})}  = 'linear';
+    options.fig_size (1,2) double {mustBePositive} = [900 600] * (3/4);
+    options.font_size (1,1) double {mustBePositive} = 16;
 
-    options.name = '';
+    options.name (1,:) char = '';
     options.colormap = parula;
-    options.legend_location = 'east';
+    options.legend_location (1,:) char = 'east';
 
-    options.RT60_dB_hi = -10;
-    options.RT60_dB_lo = -30;
+    options.RT60_dB_hi (1,1) double = -10;
+    options.RT60_dB_lo (1,1) double  = -30;
 
-    options.disp_EDC_fig = false;
+    options.disp_EDC_fig (1,1) logical = false;
 
 end
 

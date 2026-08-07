@@ -2,8 +2,10 @@
 
 %Method: Lookup table evaluation of GCP-ISM volumes, 
 %optional direct-evaluation for smaller distances,
-%Forward construction: k -> q
-%Inverse construction: q -> k
+%Forward construction: k -> q, take finite differences of volume function at distances between k, k+1, 
+%                      place contributions at integer samples in h
+%Inverse construction: q -> k, take finite differences of volume function at distances ebtween q, q+1
+%                      center contributions on Lanzcos kernels with fractional delay
 
 %Author: Yuancheng Luo, 2026
 
@@ -19,26 +21,35 @@
 %gamma_pos:     [1 x N] Reflection coefficient for wall on +axis
 %gamma_neg:     [1 x N] Reflection coefficient for wall on -axis
 
-%options:       struct
-
-%options.Fs:    Sample rate
-
-%options.mode:  Evaluation method,  'DP'       Dynamic programming memoization
+%options:                   struct
+%options.Fs:                Sample rate
+%options.mode:              String, evaluation method,  {'DP', 'conv'}
+%                                   'DP'       Dynamic programming memoization
 %                                   'conv'     Convolution form
+%options.lambda:            Scalar, scaling factor for coordinates, must be positive integer
+%options.jitter_coord_bnd:  [1 x 2]    Jitter the image source coordinates by 
+%                           unifrnd(min(jitter_coord_bnd), max(jitter_coord_bnd))
+%                           (Default = [0, 0] is disabled)
+%options.jitter_srand:      Random seed for jitter
+%options.T_direct:          Scalar (seconds), perform direct computation for distances (seconds) <= T_direct
+%options.direction:         String, RIR construction method, {'forward', 'inverse'}
+%                               'forward'  Inter-sample finite difference
+%                               'inverse'  Sum of kernels centered at squared-distances, weighted by finite difference 
+%options.kernel_sample_width:   Half-window size of Lanczos kernel, must be non-negative integer
 
-%options.lambda:    Scaling factor for coordinates
+%options.error_check_samples:   Logical, if true, check for errors due to image coords falling between ceil(q_n) and q_n
 
-%options.jitter_coord_bnd:      [1 x 2]    Jitter the image source coordinates by 
-%                               unifrnd(min(jitter_coord_bnd), max(jitter_coord_bnd))
-%                               (Default = [0, 0] is disabled)
+%options.RT60_dB_hi:            dB upperbound of echo decay curve for computing RT60
+%options.RT60_dB_lo:            dB lowerbound of echo decay curve for computing RT60
 
-%options.T_direct:  Perform direct computation for distances (seconds) <= T_direct
-
-%options.direction: RIR construction method, 'forward', 'inverse'
-
-%options.kernel_sample_width:   Half-window size of Lanczos kernel
+%options.disp_EDC_fig:         Logical, if true, disp echo decay curve
 
 %options.enable_disp:           Logical, if true, display RIR
+%options.clim:                  [1 x 2] dB limits for color bar [min, max]
+%options.fig_size:              [1 x 2] figure [width, height] in pixels
+%options.font_size:             Scalar, fontsize
+%options.legend_location:       String, legend placement
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Output
@@ -79,47 +90,45 @@
 function [h, h_fig] = RIR_GCP_ISM_LUT(T, s, r, l, gamma_pos, gamma_neg, options)
 
 arguments
-    T = 0.2;
-    s = [1 2 1];
-    r = [2 1 1];
-    l = [5 6 3];
-    gamma_pos = [0.93, 0.8, 0.9];
-    gamma_neg = [0.72, 0.78, 0.8];
 
-    %Options struct
-    options.Fs = 48000;
+    T (1,1) double {mustBeNonnegative} = 0.2;
+    s (1,:) double = [1 2 1];
+    r (1,:) double = [2 1 1];
+    l (1,:) double = [5 6 3];
+    gamma_pos (1,:) double = [0.93, 0.8, 0.9];
+    gamma_neg (1,:) double = [0.72, 0.78, 0.8];
+
+    %options struct
+    options.Fs (1,1) double {mustBeNonnegative} = 48000;
     options.mode {mustBeMember(options.mode, {'DP', 'conv'})}  = 'conv';
     
-    options.lambda = 1;
-    options.jitter_coord_bnd = [0, 0]; 
-    options.jitter_srand = 6452;
+    options.lambda (1,1) double {mustBeInteger, mustBePositive} = 1;
+    options.jitter_coord_bnd (1,2) double = [0, 0]; 
+    options.jitter_srand (1,1) double {mustBeInteger, mustBeNonnegative} = 6452;
 
-    options.T_direct = -1;
-%    options.T_direct = 0;
- %   options.T_direct = 1;
+    options.T_direct (1,1) double = -1;
 
     options.direction {mustBeMember(options.direction, {'forward', 'inverse'})} = 'inverse';
 
-    options.kernel_sample_width = 10;
+    options.kernel_sample_width (1,1) double {mustBeNonnegative}  = 10;
 
-    options.error_check_samples = false;
-    %options.error_check_samples = true;
+    options.error_check_samples (1,1) logical = false;
     
-    options.RT60_dB_hi = -10;
-    options.RT60_dB_lo = -30;
-    options.disp_EDC_fig = false;
+    options.RT60_dB_hi (1,1) double = -10;
+    options.RT60_dB_lo (1,1) double = -30;
+    options.disp_EDC_fig (1,1) logical = false;
 
     %Display options
-    options.enable_disp = false;
-    options.clim = [-120, -40];
-    options.fig_size = [900 600] * (3/4);
-    options.font_size = 16;
-    options.legend_location = 'east';
+    options.enable_disp (1,1) logical = false;
+    options.clim (1,2) double = [-120, -40];
+    options.fig_size (1,2) double {mustBePositive} = [900 600] * (3/4);
+    options.font_size (1,1) double {mustBePositive} = 16;
+    options.legend_location (1,:) char = 'east';
 
 end
 
 %Check inputs
-[pass, pass_LUT] = check_ISM_inputs(s, r, l);
+[pass, pass_LUT] = check_ISM_inputs(s, r, l, options.lambda);
 if ~pass
     error('source or receiver is out-of-bounds');
 end
@@ -135,7 +144,11 @@ M_h = ceil(T * options.Fs);  %Number of taps
 Ts = 1 / options.Fs;
 c_Ts = c * Ts;
 
-h = zeros(M_h, 1);
+if coder.target('MATLAB')
+    h = zeros(M_h, 1);
+else
+    h = complex(zeros(M_h, 1));
+end
 
 %Set name
 name = 'GCP-ISM';
@@ -242,7 +255,7 @@ elseif strcmp(options.direction, 'inverse')
 end
 
 %Plotting
-if options.enable_disp
+if options.enable_disp && coder.target('MATLAB')
     %Plot volume function
     %figure; loglog(sqrt((0:Q) / lambda^2) / c * 1000, S, 'linewidth', 1.5); grid on; axis tight; xlabel('Time (ms)'); ylabel('S (Volume)'); legend('location', 'northwest')
 

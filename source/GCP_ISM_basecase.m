@@ -54,7 +54,11 @@ if nargin < 8 || isempty(jitter_coord_bnd)
     jitter_coord_bnd = [0, 0];
 end
 
-S = zeros(Q+1, 1);
+if coder.target('MATLAB')
+    S = zeros(Q+1, 1);
+else
+    S = complex(zeros(Q+1, 1));
+end
 
 if isequal(jitter_coord_bnd, [0, 0])
     use_jitter = false;
@@ -72,6 +76,15 @@ if use_jitter
     rand_off_LUT = unifrnd(min(jitter_coord_bnd), max(jitter_coord_bnd), abs(bq-aq) + 1, 1);
     rand_off_LUT(1) = 0; %Exclude orignal source  
 
+else
+
+    if ~coder.target('MATLAB')
+        sqrt_Q = sqrt(Q);
+        [bq] = g_upper((r + sqrt_Q) / l, s / l);
+        [aq] = g_lower((r - sqrt_Q) / l, s / l);
+        rand_off_LUT = zeros(abs(bq-aq) + 1, 1);
+    end
+    
 end
 
 if strcmp(mode, 'direct')

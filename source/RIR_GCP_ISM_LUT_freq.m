@@ -20,6 +20,23 @@
 %gamma_pos:     [P x N] Complex reflection coefficient for wall on +axis uniformly spanning DC to Nyquist (single-sided spectrum)
 %gamma_neg:     [P x N] Complex reflection coefficient for wall on -axis uniformly spanning DC to Nyquist (single-sided spectrum)
 
+%options:                   struct
+%options.Fs:                Sample rate
+%options.mode:              String, RIR assembly from TFs,  {'ifft', 'direct'}
+%                                   'ifft'       IFFT and sum
+%                                   'direct'     Direct computation
+%options.lambda:            Scalar, scaling factor for coordinates, must be positive integer
+%options.jitter_coord_bnd:  [1 x 2]    Jitter the image source coordinates by 
+%                           unifrnd(min(jitter_coord_bnd), max(jitter_coord_bnd))
+%                           (Default = [0, 0] is disabled)
+%options.jitter_srand:      Random seed for jitter
+
+%options.enable_disp:           Logical, if true, display RIR
+%options.clim:                  [1 x 2] dB limits for color bar
+%options.fig_size:              [1 x 2] figure [width, height] in pixels
+%options.font_size:             Scalar, fontsize
+%options.legend_location:       String, legend placement
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Output
 %h:        [ceil(T * Fs) x 1] RIR
@@ -63,24 +80,27 @@
 function h = RIR_GCP_ISM_LUT_freq(T, s, r, l, gamma_pos, gamma_neg, options)
 
 arguments
-    T = 0.2;
-    s = [1 2 1];
-    r = [2 1 1];
-    l = [5 6 3];
-    gamma_pos = [0.93, 0.8, 0.9];
-    gamma_neg = [0.72, 0.78, 0.8];
+    T (1,1) double {mustBeNonnegative} = 0.2;
+    s (1,:) double = [1 2 1];
+    r (1,:) double = [2 1 1];
+    l (1,:) double = [5 6 3];
+    gamma_pos (:,:) double = [0.93, 0.8, 0.9];
+    gamma_neg (:,:) double = [0.72, 0.78, 0.8];
 
-    %Options struct
-    options.Fs = 48000;
-    options.mode  {mustBeMember(options.mode, {'ifft', 'direct'})}  = 'ifft';
-    options.lambda = 1;
+    %options struct
+    options.Fs (1,1) double {mustBeNonnegative} = 48000;
+    options.mode {mustBeMember(options.mode, {'ifft', 'direct'})}  = 'ifft';
+    
+    options.lambda (1,1) double {mustBeInteger, mustBePositive} = 1;
+    options.jitter_coord_bnd (1,2) double = [0, 0]; 
+    options.jitter_srand (1,1) double {mustBeInteger, mustBeNonnegative} = 6452;
 
     %Display options
-    options.enable_disp = false;
-    options.clim = [-120, -40];
-    options.fig_size = [900 600] * (3/4);
-    options.font_size = 16;
-    options.legend_location = 'east';
+    options.enable_disp (1,1) logical = false;
+    options.clim (1,2) double = [-120, -40];
+    options.fig_size (1,2) double {mustBePositive} = [900 600] * (3/4);
+    options.font_size (1,1) double {mustBePositive} = 16;
+    options.legend_location (1,:) char = 'east';
 
 end
 
@@ -88,18 +108,16 @@ end
 P = size(gamma_pos, 1);
 
 if P == 1
-%if false
-
-    h = RIR_GCP_ISM_LUT(T, s, r, l, gamma_pos, gamma_neg);
-
+    h = real(RIR_GCP_ISM_LUT(T, s, r, l, gamma_pos, gamma_neg, ...
+            'lambda', options.lambda, 'jitter_coord_bnd', options.jitter_coord_bnd, 'jitter_srand', options.jitter_srand));
 else
 
     %Assemble frequency response
     M_h = ceil(T * options.Fs);
-    H = zeros(M_h, P);
+    H = complex(zeros(M_h, P));    
     for p = 1:P
         H(:, p) = RIR_GCP_ISM_LUT(T, s, r, l, gamma_pos(p, :), gamma_neg(p, :), ...
-            'lambda', options.lambda);
+            'lambda', options.lambda, 'jitter_coord_bnd', options.jitter_coord_bnd, 'jitter_srand', options.jitter_srand);
     end
 
     %Force real DC, Nyquist
@@ -114,14 +132,14 @@ else
         h = zeros(M_h + P - 1, 1);
         idx = (1:M_h)';    
         for p = 1:P
-            h(idx + p - 1) = h(idx + p - 1) + g(:, p);
+            h(idx + p - 1) = h(idx + p - 1) + real(g(:, p));
         end
         h = h(1:M_h);
 
     elseif strcmp(options.mode, 'direct')
 
         %Direct
-        g = zeros(M_h, 1);
+        g = complex(zeros(M_h, 1));
         P_twoside = 2 * (P - 1);
         for i = 1:M_h
             for n = 1:P_twoside
@@ -134,8 +152,7 @@ else
                 end
             end
         end
-        g = real(g) / P_twoside;
-        h = g;
+        h = real(g) / P_twoside;
     end
     
 end
@@ -143,8 +160,7 @@ end
 name = 'Inverse GCP-ISM Freq.';
 
 %Plotting
-if options.enable_disp
+if options.enable_disp && coder.target('MATLAB')
     plot_ISM_RIR(h, 'Fs', options.Fs, 'name', name, 'clim', options.clim, ...
         'fig_size', options.fig_size, 'font_size', options.font_size, 'legend_location', options.legend_location);
 end
-

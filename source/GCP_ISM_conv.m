@@ -64,7 +64,11 @@ end
 
 
 N = numel(s);
-S = zeros([(Q+1), N]);
+if coder.target('MATLAB')
+    S = zeros([(Q+1), N]);
+else
+    S = complex(zeros([(Q+1), N]));
+end
 
 sqrt_Q = sqrt(Q);
 
@@ -97,8 +101,13 @@ for n = 2:N
         m_up = 0:bq;
         m_lo = aq:-1;
     
-        f_up = zeros([Q+1, 1]);
-        f_lo = zeros([Q+1, 1]);
+        if coder.target('MATLAB')
+            f_up = zeros([Q+1, 1]);
+            f_lo = zeros([Q+1, 1]);
+        else
+            f_up = complex(zeros([Q+1, 1]));
+            f_lo = complex(zeros([Q+1, 1]));
+        end
 
         if isequal(jitter_coord_bnd, [0, 0]) %No jitter
 
