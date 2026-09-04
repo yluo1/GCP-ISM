@@ -330,7 +330,7 @@ If you use this package for your work, please cite the following [paper](https:/
 
 ## Other Implementations
 
-An earlier implementation was developed for [Riveria](https://nuspaceaudio.com/2017/02/07/riviera-fast-hybrid-reverb-plugin-for-modeling-high-dimensional-spaces/) (free VST/AU plugin) at my company [NuSpace Audio](https://nuspaceaudio.com/) in 2017. In fact, the original theoretical work was documented in a series of [blog posts](https://nuspaceaudio.com/2017/02/13/geometric-audio-2-gauss-circle-problem-for-integer-room-models/), and only recently completed for academic publishing after a long hiatus.
+An earlier implementation was developed for [Riveria](https://nuspaceaudio.com/2017/02/07/riviera-fast-hybrid-reverb-plugin-for-modeling-high-dimensional-spaces/) (free VST/AU plugin) at my company [NuSpace Audio](https://nuspaceaudio.com/) in 2017. In fact, the original theoretical work was documented in a series of blog posts ([GCP formulation](https://nuspaceaudio.com/2017/02/13/geometric-audio-2-gauss-circle-problem-for-integer-room-models/), [geometric convolution](https://nuspaceaudio.com/2017/02/14/geometric-audio-3-gauss-circle-problem-for-integer-sized-room-models-part-2/), [l1 bounds](https://nuspaceaudio.com/2017/02/15/geometric-audio-4-taxi-cab-distance-bounds-on-integer-lattice-maps/)), and only recently completed for academic publishing after a long hiatus.
 
 ## License
 > GCP-ISM (c) by Yuancheng Luo
