@@ -4,7 +4,22 @@ The image-source model (ISM) is a widely adopted method for efficiently simulati
 
 This Matlab repository contains an alternative computational method that lowers the asymptotic compute bound to $O \left ( N k^2  \log k \right )$ for integer coordinates and room dimensions via reducing ISM lattice point counting to the classic Gauss circle problem (GCP). We extend the lattice counting model to frequency-dependent and reflection weighted image-sources in higher dimensions, relating solutions between successive dimensions via the convolution operator. Two constructions for realizing RIRs are presented, along with time-frequency controls, error and run-time analysis, and RIR statistics. See our [paper](https://dafx.de/paper-archive/2026/papers/DAFx26_paper_12.pdf) and for more details, and listen to some [sound samples](https://nuspaceaudio.com/2026/08/07/geometric-audio-open-sourced-paper-code-and-sound-samples/).
 
-## Gauss Circle Problem (GCP) Lattice Counting
+## Table of Contents
+* [Gauss Circle Problem (GCP) Lattice Counting](#gauss-circle-problem-lattice-counting)
+  * [Functions](#gcp-functions)
+  * [Sample Runtimes](#sample-runtime-comparisons-for-varying-distance-and-dimensions)
+* [Gauss Circle Problem Image Source Model (GCP-ISM)](#gauss-circle-problem-image-source-model-for-room-impulse-response-generation)
+  * [Functions](#gcp-image-source-model-functions)
+  * [RIR Comparisons for Increasing Room Dimensions](#rir-comparisons-for-increasing-room-dimensions)
+  * [Modifying Wall Reflection Coefficients](#modifying-wall-reflection-coefficients)
+  * [Frequency Dependent Wall Reflections](#frequency-dependent-wall-reflections)
+  * [Adding Randomized Coordinate Jitter](#adding-randomized-coordinate-jitter)
+  * [Code Generation](#code-generation-and-demo-rir-samples)
+* [Publications](#publications)
+  * [Other Implementations](#other-implementations)
+  * [License](#license)
+
+## Gauss Circle Problem Lattice Counting
 
 The classic $\textrm{GCP}(k, N)$ counts the number of integers in $\mathbf{\nu} \in \mathcal{Z}^N$ upper-bounded by the Euclidean norm $||\mathbf{\nu}||_2 \leq k$ for distance $k$. For efficient counting in $N$ dimensions, we can express the solution in terms of summations over solutions in $N-1$ dimensions given by  
   
@@ -12,16 +27,16 @@ $$\textrm{GCP}(k, N) = \left\lbrace \begin{aligned} & \qquad 1 + 2 \lfloor k \rf
 
 As a result, computing GCP in high-dimensions has an elegant recurrence relation, and can be memoized for integers $k^2 - m^2$ to yield a dynamic programming solution for $k \in \mathcal{Z}_{\geq 0}$. Furthermore, solutions for varying $k$ can be expressed via convolution operator between a sparse square-kernel and the preceding solutions in the lower dimensions. The following functions implement this formulation.
 
-### Functions
+### GCP Functions
 
 | File | Description|
-| --- | --- |
+| :--- | :--- |
 |GCP_direct.m| Reference (brute-force) method|
 |GCP_direct_recur.m| Recurrence relation|
 |GCP_DP.m| Dynamic programming|
 |GCP_conv.m | Convolution reformulation|
 
-### Sample Runtime Comparisons For Varying Distance $k$ and Dimensions $N$
+### Sample Runtime Comparisons For Varying Distance and Dimensions
 
 Small distance $k \leq 100$, and small dimension $N=3$:
 
@@ -100,7 +115,7 @@ title(['Gauss Circle Problem N = ', num2str(N)], 'fontsize', 16);
 ```
 <img src="./source/figs/GCP_large_k_large_N.png" alt="GCP large k, large N" width="400"/>
 
-## Gauss Circle Problem Image-Source Model (GCP-ISM) for Room Impulse Response (RIR) Generation
+## Gauss Circle Problem Image-Source Model for Room Impulse Response Generation
 
 We extend GCP for RIR generation by considering the classic ISM paper by
 > J.B. Allen and D.A. Berkley, "Image method for efficiently simulating small‐room acoustics," The Journal of the Acoustical Society of America. 1979 Apr 1;65(4):943-50.
@@ -109,11 +124,11 @@ The RIR under ISM is a summation of acoustic path contributions in directions of
 
 Please see the [publications](#Publications) section for further details.
 
-### Functions
+### GCP Image Source Model Functions
 
 GCP-ISM volume functions:
 | File | Description|
-| --- | --- |
+| :--- | :--- |
 |GCP_ISM_direct.m| Reference solution|
 |GCP_ISM_recur.m|Recurrence relation|
 |GCP_ISM_DP.m| Dynamic programming|
@@ -121,7 +136,7 @@ GCP-ISM volume functions:
 
 RIR construction functions:
 | File | Description|
-| --- | --- |
+| :--- | :--- |
 |RIR_ISM_direct.m|Reference ISM|
 |RIR_GCP_ISM_LUT.m|GCP-ISM with frequency-independent wall reflection|
 |RIR_GCP_ISM_LUT_freq.m|GCP-ISM with frequency-dependent wall reflections|
@@ -322,7 +337,7 @@ duration_mex = toc
 ```
 Check out the [sound samples](https://nuspaceaudio.com/2026/08/07/geometric-audio-open-sourced-paper-code-and-sound-samples/) after convolving some dry instruments with the RIRs.
 
-## Publications
+# Publications
 
 If you use this package for your work, please cite the following [paper](https://dafx.de/paper-archive/2026/papers/DAFx26_paper_12.pdf) presented at DAFx 2026:
 
